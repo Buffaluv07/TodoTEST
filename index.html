@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy To-Do List</title>
+</head>
+<body>
+    <header>
+        <h1>Fancy To-Do List</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <aside id="calendar-section">
+            <h2>Calendar</h2>
+            <div id="calendar-header">
+                <button id="prev-month">❮</button>
+                <span id="current-month-year"></span>
+                <button id="next-month">❯</button>
+            </div>
+            <div id="calendar-grid">
+                <div class="day-name">Sun</div>
+                <div class="day-name">Mon</div>
+                <div class="day-name">Tue</div>
+                <div class="day-name">Wed</div>
+                <div class="day-name">Thu</div>
+                <div class="day-name">Fri</div>
+                <div class="day-name">Sat</div>
+                <!-- Days will be dynamically added here -->
+            </div>
+        </aside>
+        <!-- Section for adding new tasks -->
+        <section id="new-task-section">
+            <h2>Add New Task</h2>
+            <form id="new-task-form">
+                <input type="text" id="task-title" placeholder="Task Title" required>
+                <input type="date" id="task-date" required>
+                <input type="time" id="task-time" required>
+                <select id="task-category">
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                </select>
+                <button type="submit">Add Task</button>
+            </form>
+        </section>
+
+        <!-- Section for upcoming tasks -->
+        <section id="upcoming-tasks-section">
+            <h2>Upcoming Tasks</h2>
+            <ul id="upcoming-tasks-list">
+                <!-- Tasks will be dynamically added here -->
+            </ul>
+        </section>
+
+        <!-- Section for completed tasks -->
+        <section id="completed-tasks-section">
+            <h2>Completed Tasks</h2>
+            <ul id="completed-tasks-list">
+                <!-- Completed tasks will be dynamically added here -->
+            </ul>
+        </section>
+      
+        <section id="late-tasks-section">
+            <h2>Late Tasks</h2>
+            <ul id="late-tasks-list">
+                <!-- Late tasks will be dynamically added here -->
+            </ul>
+        </section>
+
+        <section id="notes-section">
+            <h2>Notes</h2>
+            <form id="new-note-form">
+                <textarea id="note-content" placeholder="Write your note here..." required></textarea>
+                <button type="submit">Add Note</button>
+            </form>
+            <ul id="notes-list">
+                <!-- Notes will be dynamically added here -->
+            </ul>
+        </section>
+            </div>
+        </section>
+    <!-- Background Music Section -->
+    <section id="background-music-section">
+        <h2>Background Music</h2>
+        <audio id="background-music" loop>
+            <source src="music/File Select - The Legend of Zelda- Skyward Sword.mp3" type="audio/mpeg">
+
+        </audio>
+        <div id="music-controls">
+            <button id="play-music">Play</button>
+            <button id="pause-music">Pause</button>
+            <button id="stop-music">Stop</button>
+        </div>
+        <div id="music-progress">
+            <span id="current-time">0:00</span>
+            <input type="range" id="progress-bar" value="0" min="0" max="100">
+            <span id="total-duration">1:51</span>
+        </div>
+    </section>
+        
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
