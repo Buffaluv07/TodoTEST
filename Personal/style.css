@@ -1,0 +1,61 @@
+body {
+    font-family: Merriweather;
+    margin: 0;
+    padding: 0;
+    background-color: #4d5fb2;
+}
+body {
+    font-family:'Courier New', Courier, monospace; /* Set the global font */
+    margin: 0;
+    padding: 0;
+    background-color: #4d5fb2;
+    color: #f1e8e8; /* Default text color */
+}
+
+h2, h3, h4, h5, h6 {
+    font-family: 'Courier New', Courier, monospace; /* Ensure headings use the same font */
+    color: #f1e8e8; /* Consistent heading color */
+}
+
+p, ul, li, span, input, button, textarea {
+    font-family: 'Merriweather', serif; /* Apply the global font to all text elements */
+}
+
+header {
+    background-color: #4d5fb2;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+.header-logo svg {
+    width: 50px;
+    height: 50px;
+    margin-top: -80px;
+    margin-left: 180px;
+    position: absolute;
+    opacity: 0.5;
+    filter: drop-shadow(2px 2px 4px #000000);
+    animation: fade-in 1s ease-in-out;
+}
+
+main {
+    padding: 1rem;
+}
+h1{
+    font-size: 3rem;
+    color: #f1e8e8;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-family: Merriweather;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+section {
+    margin-bottom: 2rem;
+}
+.new-task-selection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}

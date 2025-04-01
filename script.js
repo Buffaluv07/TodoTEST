@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isLate) {
             taskItem.classList.add("late-task");
         }
-    
+    //didn't know how to do this...//
         taskItem.innerHTML = `
             <span class="task-title">${task.title}</span>
             <span class="task-datetime">${task.date} ${task.time}</span>
