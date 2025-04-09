@@ -3,21 +3,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const upcomingTasksList = document.getElementById("upcoming-tasks-list");
     const completedTasksList = document.getElementById("completed-tasks-list");
     const lateTasksList = document.getElementById("late-tasks-list");
+    const taskTimeInput = document.getElementById("task-time");
+    const setReminderCheckbox = document.getElementById("set-reminder");
 
+    // Enable/disable time input based on the reminder checkbox
+    setReminderCheckbox.addEventListener("change", () => {
+        taskTimeInput.disabled = !setReminderCheckbox.checked;
+    });
+
+    // Load tasks on page load
     loadTasks();
 
+    // Check for late tasks every minute
+    setInterval(checkForLateTasks, 60000);
 
-    setInterval(checkForLateTasks, 60000); 
-
+    // Handle new task submission
     newTaskForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
-   
         const taskTitle = document.getElementById("task-title").value;
         const taskDate = document.getElementById("task-date").value;
         const taskTime = document.getElementById("task-time").value;
         const taskCategory = document.getElementById("task-category").value;
 
+        if (setReminderCheckbox.checked && !taskTime) {
+            const userConfirmed = confirm("You have not set a time for the reminder. Do you want to continue without a time?");
+            if (!userConfirmed) {
+                return; // Stop form submission if the user selects "No"
+            }
+        }
 
         const task = {
             id: Date.now(),
@@ -29,59 +43,53 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         saveTaskToLocalStorage(task);
-
-     
         addTaskToDOM(task, false);
-
-
+        taskTimeInput.disabled = true;
+        setReminderCheckbox.checked = false;
         newTaskForm.reset();
     });
 
-
+    // Load tasks from local storage
     function loadTasks() {
         const tasks = getTasksFromLocalStorage();
         tasks.forEach((task) => {
             if (task.completed) {
                 addTaskToDOM(task, true);
             } else if (checkIfTaskIsLate(task)) {
-                addTaskToDOM(task, false, true); 
+                addTaskToDOM(task, false, true);
             } else {
                 addTaskToDOM(task, false);
             }
         });
     }
 
-
+    // Add a task to the DOM
     function addTaskToDOM(task, isCompleted, isLate = false) {
         const taskItem = document.createElement("li");
         taskItem.classList.add("task-item");
         taskItem.setAttribute("data-id", task.id);
-    
-        taskItem.classList.add(task.category === "work" ? "work-task" : "personal-task");
-    
 
+        taskItem.classList.add(task.category === "work" ? "work-task" : "personal-task");
         if (isLate) {
             taskItem.classList.add("late-task");
         }
-    //didn't know how to do this...//
+
         taskItem.innerHTML = `
             <span class="task-title">${task.title}</span>
             <span class="task-datetime">${task.date} ${task.time}</span>
             <span class="task-category">[${task.category}]</span>
             ${!isCompleted && !isLate ? '<button class="mark-complete">Complete</button>' : ''}
+            <button class="edit-task">Edit</button>
             <button class="delete-task">Delete</button>
         `;
-    
+
         if (isCompleted) {
-            const taskTitle = taskItem.querySelector(".task-title");
-            taskTitle.style.textDecoration = "line-through";
             completedTasksList.appendChild(taskItem);
         } else if (isLate) {
             lateTasksList.appendChild(taskItem);
         } else {
             upcomingTasksList.appendChild(taskItem);
-    
-  
+
             const completeButton = taskItem.querySelector(".mark-complete");
             if (completeButton) {
                 completeButton.addEventListener("click", () => {
@@ -89,52 +97,85 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         }
- 
+
+        const editButton = taskItem.querySelector(".edit-task");
+        editButton.addEventListener("click", () => {
+            editTask(task.id, isCompleted, isLate);
+        });
+
         const deleteButton = taskItem.querySelector(".delete-task");
         deleteButton.addEventListener("click", () => {
             deleteTaskFromDOM(task.id);
         });
     }
-    function deleteTaskFromDOM(taskId) {
-        const tasks = getTasksFromLocalStorage();
-        const updatedTasks = tasks.filter((task) => task.id !== taskId);
-        saveTasksToLocalStorage(updatedTasks);
-    
 
-        const taskItem = document.querySelector(`[data-id="${taskId}"]`);
-        if (taskItem) {
-            taskItem.remove();
+    // Edit a task and populate the "Add New Task" form
+    function editTask(taskId, isCompleted, isLate) {
+        const tasks = isCompleted ? getCompletedTasksFromLocalStorage() : getTasksFromLocalStorage();
+        const taskIndex = tasks.findIndex((task) => task.id === taskId);
+
+        if (taskIndex !== -1) {
+            const task = tasks[taskIndex];
+
+            // Populate the "Add New Task" form with the task's details
+            document.getElementById("task-title").value = task.title;
+            document.getElementById("task-date").value = task.date;
+            document.getElementById("task-time").value = task.time || "";
+            document.getElementById("task-category").value = task.category;
+
+            // Remove the task from local storage and the DOM
+            tasks.splice(taskIndex, 1);
+            if (isCompleted) {
+                saveCompletedTasksToLocalStorage(tasks);
+            } else {
+                saveTasksToLocalStorage(tasks);
+            }
+
+            const taskItem = document.querySelector(`[data-id="${taskId}"]`);
+            if (taskItem) {
+                taskItem.remove();
+            }
         }
     }
 
+    // Mark a task as completed
     function markTaskAsCompleted(taskId) {
         const tasks = getTasksFromLocalStorage();
         const taskIndex = tasks.findIndex((task) => task.id === taskId);
 
         if (taskIndex !== -1) {
-            tasks[taskIndex].completed = true;
+            const task = tasks[taskIndex];
+            task.completed = true;
+
+            // Save the updated task to local storage
+            tasks.splice(taskIndex, 1); // Remove from tasks
             saveTasksToLocalStorage(tasks);
 
+            // Save to completed tasks
+            saveCompletedTaskToLocalStorage(task);
 
+            // Remove from the DOM and add to the completed section
             const taskItem = document.querySelector(`[data-id="${taskId}"]`);
-            taskItem.remove();
+            if (taskItem) {
+                taskItem.remove();
+            }
 
-            addTaskToDOM(tasks[taskIndex], true);
+            addTaskToDOM(task, true);
         }
     }
 
-
+    // Check if a task is late
     function checkIfTaskIsLate(task) {
-        const taskDateTime = new Date(`${task.date}T${task.time}`);
+        const taskDateTime = new Date(`${task.date}T${task.time || "23:59"}`);
         const now = new Date();
         return taskDateTime < now;
     }
 
+    // Check for late tasks
     function checkForLateTasks() {
         const tasks = getTasksFromLocalStorage();
         tasks.forEach((task) => {
             if (!task.completed && checkIfTaskIsLate(task)) {
-                // Move the task to the "Late Tasks" section
                 const taskItem = document.querySelector(`[data-id="${task.id}"]`);
                 if (taskItem && taskItem.parentElement.id === "upcoming-tasks-list") {
                     taskItem.remove();
@@ -144,11 +185,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Delete a task from the DOM and local storage
+    function deleteTaskFromDOM(taskId) {
+        const tasks = getTasksFromLocalStorage();
+        const updatedTasks = tasks.filter((task) => task.id !== taskId);
+        saveTasksToLocalStorage(updatedTasks);
 
+        const taskItem = document.querySelector(`[data-id="${taskId}"]`);
+        if (taskItem) {
+            taskItem.remove();
+        }
+    }
+
+    // Local storage helper functions
     function getTasksFromLocalStorage() {
         return JSON.parse(localStorage.getItem("tasks")) || [];
     }
-
 
     function saveTaskToLocalStorage(task) {
         const tasks = getTasksFromLocalStorage();
@@ -159,73 +211,41 @@ document.addEventListener("DOMContentLoaded", () => {
     function saveTasksToLocalStorage(tasks) {
         localStorage.setItem("tasks", JSON.stringify(tasks));
     }
+
+    function saveCompletedTaskToLocalStorage(task) {
+        const completedTasks = JSON.parse(localStorage.getItem("completedTasks")) || [];
+        completedTasks.push(task);
+        localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
+    }
+
+    function saveCompletedTasksToLocalStorage(tasks) {
+        localStorage.setItem("completedTasks", JSON.stringify(tasks));
+    }
 });
 
-function addTaskToDOM(task, isCompleted, isLate = false) {
-    const taskItem = document.createElement("li");
-    taskItem.classList.add("task-item");
-    taskItem.setAttribute("data-id", task.id);
-
-
-    taskItem.classList.add(task.category === "work" ? "work-task" : "personal-task");
-
-  
-    if (isLate) {
-        taskItem.classList.add("late-task");
-    }
-
-    taskItem.innerHTML = `
-        <span class="task-title">${task.title}</span>
-        <span class="task-datetime">${task.date} ${task.time}</span>
-        <span class="task-category">[${task.category}]</span>
-        ${!isCompleted && !isLate ? '<button class="mark-complete">Complete</button>' : ''}
-    `;
-
-    if (isCompleted) {
-        const taskTitle = taskItem.querySelector(".task-title");
-        taskTitle.style.textDecoration = "line-through";
-        completedTasksList.appendChild(taskItem);
-    } else if (isLate) {
-        lateTasksList.appendChild(taskItem);
-    } else {
-        upcomingTasksList.appendChild(taskItem);
-
-
-        const completeButton = taskItem.querySelector(".mark-complete");
-        completeButton.addEventListener("click", () => {
-            markTaskAsCompleted(task.id);
-        });
-    }
-}
+// ==========================
+// NOTES MANAGEMENT
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     const newNoteForm = document.getElementById("new-note-form");
     const notesList = document.getElementById("notes-list");
 
-
     loadNotes();
-
 
     newNoteForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
-  
         const noteContent = document.getElementById("note-content").value;
 
-     
         const note = {
             id: Date.now(),
             content: noteContent,
         };
 
-
         saveNoteToLocalStorage(note);
-
- 
         addNoteToDOM(note);
-
         newNoteForm.reset();
     });
-
 
     function loadNotes() {
         const notes = getNotesFromLocalStorage();
@@ -234,7 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-  
     function addNoteToDOM(note) {
         const noteItem = document.createElement("li");
         noteItem.classList.add("note-item");
@@ -244,7 +263,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="edit-note">Edit</button>
             <button class="delete-note">Delete</button>
         `;
-
 
         const editButton = noteItem.querySelector(".edit-note");
         editButton.addEventListener("click", () => {
@@ -259,7 +277,6 @@ document.addEventListener("DOMContentLoaded", () => {
         notesList.appendChild(noteItem);
     }
 
-
     function editNoteContent(noteId) {
         const notes = getNotesFromLocalStorage();
         const noteIndex = notes.findIndex((note) => note.id === noteId);
@@ -270,79 +287,59 @@ document.addEventListener("DOMContentLoaded", () => {
                 notes[noteIndex].content = newContent;
                 saveNotesToLocalStorage(notes);
 
-
                 const noteItem = document.querySelector(`[data-id="${noteId}"] .note-content`);
                 noteItem.textContent = newContent;
             }
         }
     }
 
-
     function deleteNoteFromDOM(noteId) {
         const notes = getNotesFromLocalStorage();
         const updatedNotes = notes.filter((note) => note.id !== noteId);
         saveNotesToLocalStorage(updatedNotes);
 
-  
         const noteItem = document.querySelector(`[data-id="${noteId}"]`);
         if (noteItem) {
             noteItem.remove();
         }
     }
 
-
     function getNotesFromLocalStorage() {
         return JSON.parse(localStorage.getItem("notes")) || [];
     }
 
-   
     function saveNoteToLocalStorage(note) {
         const notes = getNotesFromLocalStorage();
         notes.push(note);
         saveNotesToLocalStorage(notes);
     }
 
-
     function saveNotesToLocalStorage(notes) {
         localStorage.setItem("notes", JSON.stringify(notes));
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const dayButtons = document.querySelectorAll(".day-button");
-    const selectedDayDisplay = document.getElementById("selected-day");
-
-    // Handle day button clicks
-    dayButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const selectedDay = button.getAttribute("data-day");
-            selectedDayDisplay.textContent = `Selected Day: ${selectedDay}`;
-        });
-    });
-});
-
-
+// ==========================
+// CALENDAR RENDERING
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     const calendarGrid = document.getElementById("calendar-grid");
     const currentMonthYear = document.getElementById("current-month-year");
     const prevMonthButton = document.getElementById("prev-month");
     const nextMonthButton = document.getElementById("next-month");
-    const taskDateInput = document.getElementById("task-date"); // Date input in the "New Task" section
+    const taskDateInput = document.getElementById("task-date");
 
     let currentDate = new Date();
-
 
     function renderCalendar(date) {
         const year = date.getFullYear();
         const month = date.getMonth();
 
-   
         const monthNames = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
         currentMonthYear.textContent = `${monthNames[month]} ${year}`;
-
 
         calendarGrid.innerHTML = `
             <div class="day-name">Sun</div>
@@ -354,13 +351,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="day-name">Sat</div>
         `;
 
-    
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-
         const daysInPrevMonth = new Date(year, month, 0).getDate();
-
 
         for (let i = firstDay - 1; i >= 0; i--) {
             const day = daysInPrevMonth - i;
@@ -370,23 +363,21 @@ document.addEventListener("DOMContentLoaded", () => {
             calendarGrid.appendChild(dayElement);
         }
 
-
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = document.createElement("div");
             dayElement.classList.add("day");
             dayElement.textContent = day;
 
-     
             dayElement.addEventListener("click", () => {
                 const formattedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                taskDateInput.value = formattedDate; // 
+                taskDateInput.value = formattedDate;
             });
 
             calendarGrid.appendChild(dayElement);
         }
 
         const totalCells = calendarGrid.children.length;
-        const remainingCells = 42 - totalCells; 
+        const remainingCells = 42 - totalCells;
         for (let day = 1; day <= remainingCells; day++) {
             const dayElement = document.createElement("div");
             dayElement.classList.add("day", "inactive");
@@ -394,7 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
             calendarGrid.appendChild(dayElement);
         }
     }
-
 
     prevMonthButton.addEventListener("click", () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -406,11 +396,12 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCalendar(currentDate);
     });
 
-
     renderCalendar(currentDate);
 });
 
-
+// ==========================
+// MUSIC CONTROLS
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
     const backgroundMusic = document.getElementById("background-music");
     const playMusicButton = document.getElementById("play-music");
@@ -420,30 +411,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentTimeDisplay = document.getElementById("current-time");
     const totalDurationDisplay = document.getElementById("total-duration");
 
-
     playMusicButton.addEventListener("click", () => {
         backgroundMusic.play();
     });
-
 
     pauseMusicButton.addEventListener("click", () => {
         backgroundMusic.pause();
     });
 
-
     stopMusicButton.addEventListener("click", () => {
         backgroundMusic.pause();
-        backgroundMusic.currentTime = 0; 
+        backgroundMusic.currentTime = 0;
     });
-
 
     backgroundMusic.addEventListener("timeupdate", () => {
         const currentTime = backgroundMusic.currentTime;
         const duration = backgroundMusic.duration;
 
-
         progressBar.value = (currentTime / duration) * 100;
-
 
         currentTimeDisplay.textContent = formatTime(currentTime);
 
@@ -452,12 +437,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
     progressBar.addEventListener("input", () => {
         const duration = backgroundMusic.duration;
         backgroundMusic.currentTime = (progressBar.value / 100) * duration;
     });
-
 
     function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);

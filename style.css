@@ -227,69 +227,7 @@ ul {
 }
 
 
-#calendar-section {
-    flex: 1;
-    padding: 1rem;
-    background-color: #2c4590;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-align: center;
-}
 
-#calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-#calendar-header button {
-    background-color: #4c7aaf;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#calendar-header button:hover {
-    background-color: #c4d2dc;
-}
-
-#current-month-year {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-#calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-}
-
-.day-name {
-    font-weight: bold;
-    color: #120404;
-}
-
-.day {
-    padding: 0.5rem;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.day:hover {
-    background-color: #4b7ed6;
-}
-
-.day.inactive {
-    color: #3b3939;
-    cursor: default;
-    background-color: #b39d9d;
-}
 /* Styling for Delete Buttons */
 .delete-task {
     background-color: #d9534f;

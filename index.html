@@ -24,31 +24,17 @@
     </header>
 
     <main>
-        <aside id="calendar-section">
-            <h2>Calendar</h2>
-            <div id="calendar-header">
-                <button id="prev-month">❮</button>
-                <span id="current-month-year"></span>
-                <button id="next-month">❯</button>
-            </div>
-            <div id="calendar-grid">
-                <div class="day-name">Sun</div>
-                <div class="day-name">Mon</div>
-                <div class="day-name">Tue</div>
-                <div class="day-name">Wed</div>
-                <div class="day-name">Thu</div>
-                <div class="day-name">Fri</div>
-                <div class="day-name">Sat</div>
-            
-            </div>
-        </aside>
    
         <section id="new-task-section">
             <h2>Add New Task</h2>
             <form id="new-task-form">
                 <input type="text" id="task-title" placeholder="Task Title" required>
                 <input type="date" id="task-date" required>
-                <input type="time" id="task-time" required>
+                <input type="time" id="task-time" disabled>
+                <div>
+                    <input type="checkbox" id="set-reminder">
+                    <label for="set-reminder">Set Reminder</label>
+                </div>
                 <select id="task-category">
                     <option value="work">Work</option>
                     <option value="personal">Personal</option>
@@ -96,9 +82,7 @@
     
     
     
-    
-    
-    -->
+
     <section id="background-music-section">
         <h2>Background Music</h2>
         <audio id="background-music" loop>
