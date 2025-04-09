@@ -303,3 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("completedTasks", JSON.stringify(tasks));
     }
 });
+
+if (typeof Storage === "undefined") {
+    alert("Your browser does not support localStorage. Some features may not work.");
+}

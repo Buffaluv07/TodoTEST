@@ -223,6 +223,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+if (typeof Storage === "undefined") {
+    alert("Your browser does not support localStorage. Some features may not work.");
+}
+
 // ==========================
 // NOTES MANAGEMENT
 // ==========================
@@ -448,3 +452,5 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
     }
 });
+
+element.addEventListener("touchstart", handleTouchEvent);
