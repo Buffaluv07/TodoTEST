@@ -39,12 +39,45 @@ main {
 }
 
 h1 {
-    font-size: 3rem;
+    font-size: 4rem;
     color: #f1e8e8;
     text-align: center;
     margin-bottom: 1rem;
     font-family: Merriweather;
     text-shadow: 2px 2px 4px #000000;
+}
+header nav ul {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+header nav ul li a {
+    display: inline-block;
+    padding: 0.6rem 1.2rem; /* Reduced padding */
+    font-size: 0.9rem; /* Reduced font size */
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff; /* Bright white text */
+    background-color: #007BFF; /* Bright blue background */
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add subtle shadow */
+}
+
+header nav ul li a:hover {
+    background-color: #0056b3; 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+header nav ul li a:active {
+    background-color: #003f7f; 
+    transform: translateY(0); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 section {
@@ -94,7 +127,7 @@ ul {
 }
 
 .task-item button {
-    background-color: #349937;
+    background-color: #4309ef;
     color: white;
     border: none;
     padding: 0.3rem 0.6rem;
@@ -117,7 +150,7 @@ ul {
 }
 
 .task-item button:hover {
-    background-color: #ebf4eb;
+    background-color: #b6bbb6;
 }
 
 .work-task {
@@ -226,7 +259,7 @@ ul {
     background-color: #808781;
 }
 
-/* Styling for Delete Buttons */
+
 .delete-task {
     background-color: #d9534f;
     color: white;
@@ -248,7 +281,22 @@ ul {
     background-color: #ac2e25;
     transform: translateY(0);
 }
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+.task-item {
+    animation: fadeIn 0.3s ease-in-out;
+}
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 /* Responsive styles for smaller screens */
 @media (max-width: 768px) {
     header {
@@ -303,5 +351,26 @@ ul {
 
     #new-note-form textarea {
         height: 80px;
+    }
+}
+@media (max-width: 768px) {
+    header nav ul {
+        flex-direction: column; /* Stack navigation buttons vertically */
+        align-items: center;
+        gap: 0.5rem; /* Reduce spacing between buttons */
+    }
+
+    header nav ul li a {
+        padding: 0.5rem 1rem; /* Reduce padding for smaller screens */
+        font-size: 0.8rem; /* Reduce font size for smaller screens */
+        width: 90%; /* Make buttons take up most of the screen width */
+        text-align: center; /* Center-align text */
+    }
+}
+
+@media (max-width: 480px) {
+    header nav ul li a {
+        padding: 0.4rem 0.8rem; /* Further reduce padding for very small screens */
+        font-size: 0.7rem; /* Further reduce font size */
     }
 }

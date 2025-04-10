@@ -403,6 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCalendar(currentDate);
 });
 
+
 // ==========================
 // MUSIC CONTROLS
 // ==========================
@@ -454,3 +455,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 element.addEventListener("touchstart", handleTouchEvent);
+
+const toggleDarkMode = document.getElementById("dark-mode-toggle");
+toggleDarkMode.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+});
+
+const volumeControl = document.getElementById("volume-control");
+volumeControl.addEventListener("input", () => {
+    backgroundMusic.volume = volumeControl.value;
+});
